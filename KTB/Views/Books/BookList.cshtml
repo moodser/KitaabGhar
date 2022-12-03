@@ -1,0 +1,12 @@
+﻿@model IEnumerable<KTB.Models.Book>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+@foreach (var item in Model)
+{
+<p>>@item.Title</p>
+<img src="@item.URL" alt="Alternate Text" />
+}

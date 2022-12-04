@@ -12,7 +12,6 @@ namespace KTB.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-        }
-        public DbSet<KTB.Models.Book> Book { get; set; }
+        }   
     }
 }

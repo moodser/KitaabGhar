@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KTB.Data;
 using KTB.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace KTB.Controllers
 {
@@ -23,21 +22,10 @@ namespace KTB.Controllers
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Book.ToListAsync());
-        }
-
-        public IActionResult SearchForm()
-        {
-            return View();
-        }
-
-        public async Task<IActionResult> SearchResult(string Title)
-        {
-            return View("Index", await _context.Book.Where(a=>a.Title.Contains(Title)).ToListAsync());
-        }
-        public async Task<IActionResult> BookList()
-        {
-            return View(await _context.Book.ToListAsync());
+            ViewData["BookAuthor"] = await _context.BookAuthor.ToListAsync();
+            ViewData["Authors"] = await _context.Author.ToListAsync();
+            var applicationDbContext = _context.Book.Include(b => b.Publishers);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Books/Details/5
@@ -49,6 +37,7 @@ namespace KTB.Controllers
             }
 
             var book = await _context.Book
+                .Include(b => b.Publishers)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (book == null)
             {
@@ -59,9 +48,10 @@ namespace KTB.Controllers
         }
 
         // GET: Books/Create
-        [Authorize]
         public IActionResult Create()
         {
+            ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Name");
+            ViewData["AuthorId"] = new SelectList(_context.Author, "Id", "Name");
             return View();
         }
 
@@ -70,20 +60,28 @@ namespace KTB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Create([Bind("Id,Title,URL")] Book book)
+        public async Task<IActionResult> Create([Bind("Id,Title,URL,Price,Edition,PublisherId")] Book book, List<int> Authors)
         {
+            
             if (ModelState.IsValid)
             {
-                _context.Add(book);
-                await _context.SaveChangesAsync();
+                _context.Book.Add(book);
+                await _context.SaveChangesAsync(); 
+                List<BookAuthor> bookAuthtor = new List<BookAuthor>();
+                foreach (int author in Authors)
+                {
+                    bookAuthtor.Add(new BookAuthor { AuthorId = author, BookId = book.Id});
+                }
+                _context.BookAuthor.AddRange(bookAuthtor);
+                _context.SaveChanges();
+                
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Id", book.PublisherId);
             return View(book);
         }
 
         // GET: Books/Edit/5
-        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -96,6 +94,19 @@ namespace KTB.Controllers
             {
                 return NotFound();
             }
+
+            IList<BookAuthor> bookAuthors = await _context.BookAuthor.Where<BookAuthor>(a=>a.BookId == book.Id).ToListAsync();
+            IList<int> listAuthors = new List<int>();
+            foreach(BookAuthor bookAuthor in bookAuthors)
+            {
+                listAuthors.Add(bookAuthor.AuthorId);
+            }
+            // var authors = await _context.Author.Where(a=>a.Id.Equals(listAuthors)).ToListAsync();
+            
+
+            
+            ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Name", book.PublisherId);
+            ViewData["AuthorId"] = new MultiSelectList(_context.Author, "Id", "Name", listAuthors.ToArray());
             return View(book);
         }
 
@@ -104,8 +115,7 @@ namespace KTB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,URL")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,URL,Price,Edition,PublisherId")] Book book)
         {
             if (id != book.Id)
             {
@@ -132,11 +142,11 @@ namespace KTB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Id", book.PublisherId);
             return View(book);
         }
 
         // GET: Books/Delete/5
-        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -145,6 +155,7 @@ namespace KTB.Controllers
             }
 
             var book = await _context.Book
+                .Include(b => b.Publishers)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (book == null)
             {
@@ -157,7 +168,6 @@ namespace KTB.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var book = await _context.Book.FindAsync(id);

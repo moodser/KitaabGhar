@@ -4,14 +4,16 @@ using KTB.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace KTB.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221204103411_entitiesCreated")]
+    partial class entitiesCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,28 +87,6 @@ namespace KTB.Data.Migrations
                     b.HasIndex("PublisherId");
 
                     b.ToTable("Book");
-                });
-
-            modelBuilder.Entity("KTB.Models.BookAuthor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("BookId");
-
-                    b.ToTable("BookAuthor");
                 });
 
             modelBuilder.Entity("KTB.Models.Order", b =>
@@ -385,25 +365,6 @@ namespace KTB.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Publishers");
-                });
-
-            modelBuilder.Entity("KTB.Models.BookAuthor", b =>
-                {
-                    b.HasOne("KTB.Models.Author", "Authors")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KTB.Models.Book", "Books")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Authors");
-
-                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("KTB.Models.Order", b =>

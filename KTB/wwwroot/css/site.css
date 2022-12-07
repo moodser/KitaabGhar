@@ -7,6 +7,15 @@ a.navbar-brand {
   word-break: break-all;
 }
 
+.nav-item:hover{
+    background-color:lightgreen;
+    border-radius:1em;
+    font-weight:bold;
+}
+
+.table {
+    width: 100%;
+}
 /* Provide sufficient contrast against white background */
 a {
   color: #0366d6;
@@ -68,4 +77,28 @@ body {
   width: 100%;
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
+}
+
+#authorBox{
+    width: 150px;
+    text-align:center;
+    margin-bottom: 50px;
+    padding:20px;
+    border:2px dashed grey;
+    box-shadow: grey 5px 5px;
+    border-radius: 2em;
+}
+
+#authorImage{
+    width: 100%;
+    height: 100px;
+    display:inline-block;
+    border-radius: 50%;
+    
+}
+
+#authorName{
+    display:inline-block;
+    text-align:center;
+    font-weight:bold;
 }

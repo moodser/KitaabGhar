@@ -12,6 +12,12 @@ namespace KTB.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-        }   
+        }
+        public DbSet<Book> Book { get; set; }
+        public DbSet<Author> Author { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<BookAuthor> BookAuthor { get; set; }
+        public DbSet<Publisher> Publisher { get; set; }
+
     }
 }

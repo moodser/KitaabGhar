@@ -4,36 +4,66 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Publisher</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Logo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Logo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>
+@{List<Book> books = ViewData["Books"] as List<Book>; }
+
+@if (books.Count() == 0)
+{
+    <h3>Are you sure you want to delete this?</h3>
+    <div>
+        <h4>Publisher</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Logo)
+            </dt>
+            <dd class="col-sm-10">
+                <img style="width:200px; height:200px; border-radius:50%;" src="@Model.Logo" alt="Alternate Text" />
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Address)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Address)
+            </dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Delete" class="btn btn-danger" /> |
+            <a asp-action="Index">Back to List</a>
+        </form>
+    </div>
+}
+else
+{
+    <h5 class="bg-warning" style="padding:5px; text-align:center;">Sorry! We cannot delete this company because it is registered as a Publisher of Book(s)</h5>
+    <table style="text-align:center;">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Book Cover</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                    if (book.PublisherId == Model.Id)
+                    {
+                        <tr>
+                            <td style="width:200px;">@book.Title</td>
+                            <td><img style="width:200px;" src="@book.URL" alt="@book.Title" /></td>
+                        </tr>
+                    }
+                
+            }
+        </tbody>
+    </table>
+    <h5 class="bg-primary" style="padding:5px; text-align:center;">Please delete/update these books before deletion of Publisher.</h5>
+}

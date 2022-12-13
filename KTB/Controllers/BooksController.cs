@@ -28,24 +28,18 @@ namespace KTB.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Books/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> BookDetails(int? Id)
         {
-            if (id == null)
+            if (Id == null)
             {
                 return NotFound();
             }
-
-            var book = await _context.Book
-                .Include(b => b.Publishers)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return View(book);
+            ViewData["BookAuthor"] = await _context.BookAuthor.ToListAsync();
+            ViewData["Authors"] = await _context.Author.ToListAsync();
+            var applicationDbContext = _context.Book.Include(b => b.Publishers).Where(b=>b.Id==Id);
+            return View("Index", await applicationDbContext.ToListAsync());
         }
+
 
         // GET: Books/Create
         public IActionResult Create()
@@ -88,7 +82,6 @@ namespace KTB.Controllers
             {
                 return NotFound();
             }
-
             var book = await _context.Book.FindAsync(id);
             if (book == null)
             {
@@ -101,9 +94,6 @@ namespace KTB.Controllers
             {
                 listAuthors.Add(bookAuthor.AuthorId);
             }
-            // var authors = await _context.Author.Where(a=>a.Id.Equals(listAuthors)).ToListAsync();
-            
-
             
             ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Name", book.PublisherId);
             ViewData["AuthorId"] = new MultiSelectList(_context.Author, "Id", "Name", listAuthors.ToArray());
@@ -115,8 +105,9 @@ namespace KTB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,URL,Price,Edition,PublisherId")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,URL,Price,Edition,PublisherId")] Book book, List<int> Authors)
         {
+            var transaction = _context.Database.BeginTransaction();
             if (id != book.Id)
             {
                 return NotFound();
@@ -127,7 +118,20 @@ namespace KTB.Controllers
                 try
                 {
                     _context.Update(book);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
+                    List<BookAuthor> bookAuthor = new List<BookAuthor>();
+                    foreach (int author in Authors)
+                    {
+                        bookAuthor.Add(new BookAuthor { AuthorId = author, BookId = book.Id });
+                    }
+                    List<BookAuthor> deleteBookAuthors = await _context.BookAuthor.Where<BookAuthor>(a => a.BookId == book.Id).ToListAsync();
+                    _context.BookAuthor.RemoveRange(deleteBookAuthors);
+                    _context.SaveChanges();
+                    
+                    _context.BookAuthor.UpdateRange(bookAuthor);
+                    _context.SaveChanges();
+
+                    await transaction.CommitAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -142,6 +146,8 @@ namespace KTB.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            
             ViewData["PublisherId"] = new SelectList(_context.Publisher, "Id", "Id", book.PublisherId);
             return View(book);
         }
@@ -172,7 +178,12 @@ namespace KTB.Controllers
         {
             var book = await _context.Book.FindAsync(id);
             _context.Book.Remove(book);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+
+            List<BookAuthor> deleteBookAuthors = await _context.BookAuthor.Where<BookAuthor>(a => a.BookId == book.Id).ToListAsync();
+            _context.BookAuthor.RemoveRange(deleteBookAuthors);
+            _context.SaveChanges();
+
             return RedirectToAction(nameof(Index));
         }
 

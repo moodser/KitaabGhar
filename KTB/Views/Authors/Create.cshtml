@@ -28,9 +28,9 @@
                 <span asp-validation-for="Nationality" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DoB" class="control-label"></label>
-                <input asp-for="DoB" class="form-control" />
-                <span asp-validation-for="DoB" class="text-danger"></span>
+                <label for="DoB" class="control-label">Date of Birth</label>
+                <input name="DoB" type="date" class="form-control" />
+                <span asp-validation-for="DoB.Date" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

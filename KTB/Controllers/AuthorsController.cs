@@ -25,24 +25,7 @@ namespace KTB.Controllers
             return View(await _context.Author.ToListAsync());
         }
 
-        // GET: Authors/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var author = await _context.Author
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return View(author);
-        }
-
+        
         // GET: Authors/Create
         public IActionResult Create()
         {
@@ -130,7 +113,12 @@ namespace KTB.Controllers
             {
                 return NotFound();
             }
-
+            List<BookAuthor> bookAuthors = await _context.BookAuthor.Where<BookAuthor>(a=>a.AuthorId == author.Id).ToListAsync();
+            List<Book> books = await _context.Book.ToListAsync();
+            
+           
+            ViewData["books"] = books;
+            ViewData["bookAuthors"] = bookAuthors;
             return View(author);
         }
 

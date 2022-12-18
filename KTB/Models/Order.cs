@@ -13,7 +13,7 @@ namespace KTB.Models
         [Key]
         public int Id { get; set; }
         public int Quantity { get; set; }
-        public string Status { get; set; }
+        public OrderState Status { get; set; }
         public DateTime LastUpdated { get; set; }
         // Book
         [ForeignKey("Books")]
@@ -24,4 +24,14 @@ namespace KTB.Models
         public string UserId { get; set; }
         public virtual IdentityUser Users { get; set; }
     }
+
+    public enum OrderState
+    {
+        InCart,
+        OrderPlaced,
+        Verifying,
+        Inprocess,
+        Delivered
+    }
+
 }

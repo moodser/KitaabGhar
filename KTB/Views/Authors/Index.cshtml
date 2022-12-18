@@ -1,13 +1,18 @@
 ﻿@model IEnumerable<KTB.Models.Author>
-
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Index";
 }
 
+@if (User.IsInRole("Admin") && SignInManager.IsSignedIn(User))
+{
+    <p>
+        <a asp-action="Create"><button class="btn btn-success"><span class="fa fa-plus-square"></span> Add new Author</button></a>
+    </p>
+}
 
-<p>
-    <a asp-action="Create"><button class="btn btn-success"><span class="fa fa-plus-square"></span> Add new Author</button></a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -27,25 +32,29 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <img style="width:200px; height: 200px; border-radius: 50%;" src="@item.Image" alt="@item.Name" />
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nationality)
-            </td>
-            <td>
-                @item.DoB.Year             
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id"><span class="fa fa-edit"></span></a>
-                <a asp-action="Delete" asp-route-id="@item.Id"><span style="color:red;" class="fa fa-trash"></span></a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <img style="width:200px; height: 200px; border-radius: 50%;" src="@item.Image" alt="@item.Name" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nationality)
+                </td>
+                <td>
+                    @item.DoB.Year
+                </td>
+                <td>
+                    @if (User.IsInRole("Admin") && SignInManager.IsSignedIn(User))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id"><span class="fa fa-edit"></span></a>
+                        <a asp-action="Delete" asp-route-id="@item.Id"><span style="color:red;" class="fa fa-trash"></span></a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

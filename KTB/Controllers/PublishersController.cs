@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KTB.Data;
 using KTB.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KTB.Controllers
 {
@@ -26,6 +27,7 @@ namespace KTB.Controllers
         }
         
         // GET: Publishers/Create
+        [Authorize(Roles ="Admin")]
         public IActionResult Create()
         {
             return View();
@@ -36,6 +38,7 @@ namespace KTB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id,Name,Logo,Address")] Publisher publisher)
         {
             if (ModelState.IsValid)
@@ -48,6 +51,7 @@ namespace KTB.Controllers
         }
 
         // GET: Publishers/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -68,6 +72,7 @@ namespace KTB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Logo,Address")] Publisher publisher)
         {
             if (id != publisher.Id)
@@ -99,6 +104,7 @@ namespace KTB.Controllers
         }
 
         // GET: Publishers/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -119,6 +125,7 @@ namespace KTB.Controllers
         // POST: Publishers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var publisher = await _context.Publisher.FindAsync(id);
